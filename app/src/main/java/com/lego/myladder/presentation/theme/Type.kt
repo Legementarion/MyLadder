@@ -1,4 +1,4 @@
-package com.lego.myladder.ui.theme
+package com.lego.myladder.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

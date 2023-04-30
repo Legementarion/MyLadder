@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">MyLadder</string>
+    <string name="pull_up_bars">Турник</string>
+    <string name="pull_down_bars">Брусья</string>
+    <string name="next">Next</string>
+    <string name="increment">Increment</string>
+    <string name="hold">Hold</string>
 </resources>

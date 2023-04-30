@@ -1,4 +1,4 @@
-package com.lego.myladder.ui.theme
+package com.lego.myladder.presentation.theme
 
 import android.app.Activity
 import android.os.Build
