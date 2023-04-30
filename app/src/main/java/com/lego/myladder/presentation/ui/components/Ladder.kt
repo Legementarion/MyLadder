@@ -17,18 +17,27 @@ import androidx.compose.ui.unit.dp
 import com.lego.myladder.presentation.theme.MyLadderTheme
 
 @Composable
-fun LadderView(label: String, currentIndex: Int, value: Sequence<Int>) {
+fun LadderView(label: String, currentIndex: Int, value: IntArray) {
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val columnHeight = value.mapIndexed { index, _ ->
-            (index * 20) + 40
-        }.toList().reversed()
+        var prevValue = 0
+        var prevHeight: Int = value.first()
+        val values = value.reversed()
+        val columnHeight = values.mapIndexed { index, value ->
+            if (value == prevValue) {
+                prevHeight
+            } else {
+                prevValue = value
+                prevHeight = (index * 20) + 40
+                prevHeight
+            }
+        }
 
-        Row() {
-            for (i in 0 until value.count()) {
+        Row {
+            for (i in 0 until values.count()) {
                 Step(
                     Modifier
                         .height(columnHeight[i].dp)
@@ -41,7 +50,7 @@ fun LadderView(label: String, currentIndex: Int, value: Sequence<Int>) {
                             .fillMaxHeight()
                             .align(Alignment.CenterVertically),
                         textAlign = TextAlign.Center,
-                        text = value.elementAt(i).toString(),
+                        text = values.elementAt(i).toString(),
                         color = Color.Yellow,
                     )
                 }
@@ -55,6 +64,6 @@ fun LadderView(label: String, currentIndex: Int, value: Sequence<Int>) {
 @Composable
 fun LadderPreview() {
     MyLadderTheme {
-        LadderView(label = "ololo", 2, value = sequenceOf(1, 2, 3, 4, 5))
+        LadderView(label = "ololo", 2, value = intArrayOf(5, 4, 3, 3, 2))
     }
 }

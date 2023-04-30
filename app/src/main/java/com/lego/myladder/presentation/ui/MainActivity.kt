@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,9 +48,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyLadderTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     val showDialog = remember { mutableStateOf(false) }
                     val dialogMessage =
@@ -59,29 +59,25 @@ class MainActivity : ComponentActivity() {
                     if (showDialog.value) {
                         ConfirmActionDialog(
                             message = dialogMessage.value,
-                            onConfirm = {
-                                mainViewModel.hardReset()
-                            },
-                            onDismiss = {
-                                showDialog.value = false
-                            }
+                            onConfirm = { mainViewModel.hardReset() },
+                            onDismiss = { showDialog.value = false }
                         )
                     }
                     Column(
                         Modifier
                             .fillMaxSize()
-                            .absolutePadding(16.dp, 32.dp, 16.dp, 16.dp)
+                            .padding(horizontal = 16.dp, vertical = 32.dp)
                     ) {
-
                         Row(
-                            Modifier
-                                .fillMaxWidth(),
+                            Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
                         ) {
-                            IconButton(modifier = Modifier
-                                .size(24.dp)
-                                .background(Color.LightGray, CircleShape),
-                                onClick = { showDialog.value = true }) {
+                            IconButton(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .background(Color.LightGray, CircleShape),
+                                onClick = { showDialog.value = true }
+                            ) {
                                 Icon(
                                     Icons.Filled.Clear,
                                     "reset all icon",
@@ -92,67 +88,61 @@ class MainActivity : ComponentActivity() {
                         MainAnimation(
                             Modifier
                                 .fillMaxWidth()
-                                .height(320.dp)
+                                .height(240.dp)
                         )
 
-                        val pullUps = remember {
-                            mutableStateOf(Ladder(0, sequenceOf(1)))
-                        }
-                        val pullDowns = remember {
-                            mutableStateOf(Ladder(0, sequenceOf(1)))
-                        }
+                        val pullUps = remember { mutableStateOf(Ladder(intArrayOf(1))) }
+                        val pullDowns = remember { mutableStateOf(Ladder(intArrayOf(1))) }
+                        val pullUpIndex = remember { mutableStateOf(0) }
+                        val pullDownIndex = remember { mutableStateOf(0) }
 
-                        val pullUpIndex = remember {
-                            mutableStateOf(0)
-                        }
-                        val pullDownIndex = remember {
-                            mutableStateOf(0)
-                        }
-
-                        mainViewModel.ladder.observe(this@MainActivity) {
-                            pullUps.value = it.up
-                            pullDowns.value = it.down
-                        }
-
-                        mainViewModel.upIndex.observe(this@MainActivity) {
-                            pullUpIndex.value = it
-                        }
-                        mainViewModel.downIndex.observe(this@MainActivity) {
-                            pullDownIndex.value = it
+                        LaunchedEffect(mainViewModel) {
+                            mainViewModel.ladders.observe(this@MainActivity) { ladders ->
+                                pullUps.value = ladders.up
+                                pullDowns.value = ladders.down
+                            }
+                            mainViewModel.upIndex.observe(this@MainActivity) { index ->
+                                pullUpIndex.value = index
+                            }
+                            mainViewModel.downIndex.observe(this@MainActivity) { index ->
+                                pullDownIndex.value = index
+                            }
                         }
 
                         Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.CenterHorizontally)
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f, true),
+                                modifier = Modifier.weight(1f, true),
                             ) {
                                 LadderBlock(
                                     getString(R.string.pull_up_bars),
                                     pullUpIndex.value,
-                                    pullUps.value
-                                )
+                                    pullUps.value,
+                                    onIncrement = {
+                                        mainViewModel.increment(pullUps.value)
+                                    }, onNext = {
+                                        mainViewModel.next(pullUps.value)
+                                    })
                             }
                             Column(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f, true),
+                                Modifier.weight(1f, true),
                             ) {
                                 LadderBlock(
                                     getString(R.string.pull_down_bars),
                                     pullDownIndex.value,
-                                    pullDowns.value
-                                )
+                                    pullDowns.value,
+                                    onIncrement = {
+                                        mainViewModel.increment(pullDowns.value)
+                                    }, onNext = {
+                                        mainViewModel.next(pullDowns.value)
+                                    })
                             }
                         }
 
                         Row(
-                            Modifier
-                                .fillMaxWidth(),
+                            Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Button(onClick = { mainViewModel.resetToday() }) {
@@ -169,7 +159,13 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun LadderBlock(label: String, index: Int, pulls: Ladder) {
+    fun LadderBlock(
+        label: String,
+        index: Int,
+        pulls: Ladder,
+        onIncrement: (Ladder) -> Unit,
+        onNext: (Ladder) -> Unit
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -179,18 +175,26 @@ class MainActivity : ComponentActivity() {
         ) {
             LadderView(label, index, pulls.sequence)
 
-            Button(modifier = Modifier
-                .wrapContentHeight(),
-                onClick = { mainViewModel.next(pulls) }) {
-                Text(textAlign = TextAlign.Center, text = stringResource(R.string.next))
-            }
-            Button(modifier = Modifier
-                .wrapContentHeight(),
-                onClick = { mainViewModel.increment() }) {
+            Button(
+                modifier = Modifier
+                    .wrapContentHeight(),
+                onClick = { onIncrement(pulls) }
+            ) {
                 Text(
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     text = stringResource(R.string.increment)
+                )
+            }
+
+            Button(
+                modifier = Modifier
+                    .wrapContentHeight(),
+                onClick = { onNext(pulls) }
+            ) {
+                Text(
+                    textAlign = TextAlign.Center,
+                    text = stringResource(R.string.next)
                 )
             }
         }
