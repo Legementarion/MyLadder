@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val showDialog = remember { mutableStateOf(false) }
                     val dialogMessage =
-                        remember { mutableStateOf("Вы уверены, что хотите выполнить это действие?") }
+                        remember { mutableStateOf(getString(R.string.dialog_message)) }
 
                     if (showDialog.value) {
                         ConfirmActionDialog(
@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 Icon(
                                     Icons.Filled.Clear,
-                                    "reset all icon",
+                                    getString(R.string.reset_all_icon_content_description),
                                     tint = Color.Black
                                 )
                             }

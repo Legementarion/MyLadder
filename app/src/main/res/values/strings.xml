@@ -5,4 +5,6 @@
     <string name="next">Next</string>
     <string name="increment">Increment</string>
     <string name="hold">Hold</string>
+    <string name="reset_all_icon_content_description">reset all icon</string>
+    <string name="dialog_message">Вы уверены, что хотите выполнить это действие?</string>
 </resources>

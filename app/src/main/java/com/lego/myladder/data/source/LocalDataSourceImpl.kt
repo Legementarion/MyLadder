@@ -1,14 +1,19 @@
 package com.lego.myladder.data.source
 
+import com.lego.myladder.data.dao.LadderDao
+import com.lego.myladder.data.models.toData
+import com.lego.myladder.data.models.toDomain
 import com.lego.myladder.domain.models.Ladder
+import com.lego.myladder.domain.models.LadderModel
 
-class LocalDataSourceImpl: LocalDataSource {
+class LocalDataSourceImpl(private val dao: LadderDao) : LocalDataSource {
 
     override fun update(ladder: Ladder) {
+        dao.insertAll(ladder.toData())
     }
 
-    override fun getLadder(): Ladder {
-        return Ladder()
+    override fun getLadders(): LadderModel {
+        return dao.getAll().toDomain()
     }
 
 }
