@@ -98,9 +98,12 @@ class MainActivity : ComponentActivity() {
 
                         LaunchedEffect(mainViewModel) {
                             mainViewModel.ladders.observe(this@MainActivity) { ladders ->
-                                pullUps.value = ladders.up
-                                pullDowns.value = ladders.down
+                                ladders?.let {
+                                    pullUps.value = it.up
+                                    pullDowns.value = it.down
+                                }
                             }
+
                             mainViewModel.upIndex.observe(this@MainActivity) { index ->
                                 pullUpIndex.value = index
                             }

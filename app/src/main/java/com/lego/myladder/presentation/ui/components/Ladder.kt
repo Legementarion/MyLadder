@@ -17,21 +17,20 @@ import androidx.compose.ui.unit.dp
 import com.lego.myladder.presentation.theme.MyLadderTheme
 
 @Composable
-fun LadderView(label: String, currentIndex: Int, value: IntArray) {
+fun LadderView(label: String, currentIndex: Int, values: IntArray) {
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         var prevValue = 0
-        var prevHeight: Int = value.first()
-        val values = value.reversed()
+        var prevHeight = 0
         val columnHeight = values.mapIndexed { index, value ->
             if (value == prevValue) {
                 prevHeight
             } else {
                 prevValue = value
-                prevHeight = (index * 20) + 40
+                prevHeight = ((values.size - index) * 20) + 40
                 prevHeight
             }
         }
@@ -64,6 +63,6 @@ fun LadderView(label: String, currentIndex: Int, value: IntArray) {
 @Composable
 fun LadderPreview() {
     MyLadderTheme {
-        LadderView(label = "ololo", 2, value = intArrayOf(5, 4, 3, 3, 2))
+        LadderView(label = "ololo", 2, values = intArrayOf(5, 4, 3, 3, 2))
     }
 }

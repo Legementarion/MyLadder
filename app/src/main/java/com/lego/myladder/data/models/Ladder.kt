@@ -3,6 +3,8 @@ package com.lego.myladder.data.models
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.lego.myladder.domain.PULL_DOWNS_UID
+import com.lego.myladder.domain.PULL_UPS_UID
 
 @Entity
 data class Ladder(
@@ -29,5 +31,22 @@ data class Ladder(
         result = 31 * result + pointer
         result = 31 * result + sequence.contentHashCode()
         return result
+    }
+
+    companion object {
+        fun populateData(): List<Ladder> {
+            return listOf(
+                Ladder(
+                    PULL_UPS_UID,
+                    4, //size of sequence - 1
+                    intArrayOf(5, 4, 3, 2, 1)
+                ),
+                Ladder(
+                    PULL_DOWNS_UID,
+                    4,
+                    sequence = intArrayOf(5, 4, 3, 2, 1),
+                )
+            )
+        }
     }
 }

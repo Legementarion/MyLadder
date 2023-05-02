@@ -9,9 +9,10 @@ class IncreaseSequenceUseCase(private val repository: Repository) {
         val newLadder = Ladder(
             sequence = currentLadder.sequence.also { it[currentLadder.pointer]++ },
             pointer = if (currentLadder.pointer != 0)
-                currentLadder.pointer--
+                --currentLadder.pointer
             else
                 currentLadder.sequence.lastIndex,
+            uid = currentLadder.uid
         )
         repository.increase(newLadder)
     }

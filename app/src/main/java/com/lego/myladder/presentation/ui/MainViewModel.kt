@@ -1,24 +1,25 @@
 package com.lego.myladder.presentation.ui
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.lego.myladder.domain.models.Ladder
 import com.lego.myladder.domain.models.LadderModel
 import com.lego.myladder.domain.usecase.GetSequenceUseCase
 import com.lego.myladder.domain.usecase.IncreaseSequenceUseCase
+import com.lego.myladder.presentation.base.BaseViewModel
+import kotlinx.coroutines.launch
 
 class MainViewModel(
     getSequenceUseCase: GetSequenceUseCase,
     private val increaseSequenceUseCase: IncreaseSequenceUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
-    val ladders = MutableLiveData<LadderModel>()
+    private var _myData: LiveData<LadderModel?> = getSequenceUseCase.getLadders()
+    val ladders: LiveData<LadderModel?>
+        get() = _myData
+
     val upIndex = MutableLiveData<Int>().apply { postValue(DEFAULT) }
     val downIndex = MutableLiveData<Int>().apply { postValue(DEFAULT) }
-
-    init {
-        ladders.postValue(getSequenceUseCase.getLadders())
-    }
 
     fun resetToday() {
         upIndex.postValue(DEFAULT)
@@ -42,8 +43,8 @@ class MainViewModel(
         checkSteps()
     }
 
-    private fun checkSteps(){
-        if (upIndex.value == MAX_STEP && downIndex.value == MAX_STEP){
+    private fun checkSteps() {
+        if (upIndex.value == MAX_STEP && downIndex.value == MAX_STEP) {
             playFinalDayAnimation()
         }
     }
@@ -53,7 +54,14 @@ class MainViewModel(
     }
 
     fun increment(currentLadder: Ladder) {
-        increaseSequenceUseCase.increase(currentLadder)
+        viewModelScope.launch {
+            increaseSequenceUseCase.increase(currentLadder)
+        }
+        if (this.ladders.value?.up == currentLadder) {
+            upIndex.postValue(DEFAULT)
+        } else {
+            downIndex.postValue(DEFAULT)
+        }
     }
 
     fun hardReset() {

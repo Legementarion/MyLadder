@@ -1,13 +1,18 @@
 package com.lego.myladder.data.models
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import androidx.room.TypeConverter
 import com.lego.myladder.domain.models.LadderModel
 
-fun List<Ladder>.toDomain(): LadderModel {
-    return LadderModel(
-        up = this.first().toDomain(),
-        down = this.last().toDomain()
-    )
+fun LiveData<List<Ladder>>.toDomain(): LiveData<LadderModel?> {
+    return this.map { x ->
+        if (x.isEmpty()) return@map null
+        LadderModel(
+            up = x.first().toDomain(),
+            down = x.last().toDomain()
+        )
+    }
 }
 
 fun Ladder.toDomain(): com.lego.myladder.domain.models.Ladder {

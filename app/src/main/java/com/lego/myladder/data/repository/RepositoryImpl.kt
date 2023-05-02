@@ -1,5 +1,6 @@
 package com.lego.myladder.data.repository
 
+import androidx.lifecycle.LiveData
 import com.lego.myladder.data.source.LocalDataSource
 import com.lego.myladder.domain.Repository
 import com.lego.myladder.domain.models.Ladder
@@ -11,16 +12,7 @@ class RepositoryImpl(private val dataSource: LocalDataSource) : Repository {
         dataSource.update(newLadder)
     }
 
-    override fun getLadders(): LadderModel {
-        return LadderModel(
-            Ladder(
-                intArrayOf(5, 4, 3, 2, 2),
-                0
-            ),
-            Ladder(
-                intArrayOf(5, 4, 3, 2, 1),
-                0
-            )
-        )
+    override fun getLadders(): LiveData<LadderModel?> {
+        return dataSource.getLadders()
     }
 }

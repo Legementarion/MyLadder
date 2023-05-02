@@ -1,6 +1,5 @@
 package com.lego.myladder
 
-import androidx.room.Room
 import com.lego.myladder.data.dao.LadderDataBase
 import com.lego.myladder.data.repository.RepositoryImpl
 import com.lego.myladder.data.source.LocalDataSource
@@ -24,11 +23,7 @@ val appModule = module {
     single<LocalDataSource> { LocalDataSourceImpl(get()) }
 
     single {
-        val db = Room.databaseBuilder(
-            get(),
-            LadderDataBase::class.java, "database-name"
-        ).build()
-
+        val db = LadderDataBase.getInstance(get())
         db.ladderDao()
     }
 
